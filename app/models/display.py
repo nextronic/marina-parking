@@ -10,6 +10,7 @@ class Display(db.Model):
     x = db.Column(db.Integer, nullable=False)
     y = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Integer, default=1)
+    index = db.Column(db.Integer, default=1, nullable=False)
     id_queue = db.Column(db.Integer, db.ForeignKey('queue.id_queue'), nullable=False)
 
     def __repr__(self):

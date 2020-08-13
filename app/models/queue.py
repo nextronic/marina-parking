@@ -1,4 +1,7 @@
 from app import db
+from .display import Display
+from .detector import Detector
+from .company import Company
 
 
 class Queue(db.Model):
@@ -7,6 +10,7 @@ class Queue(db.Model):
     name = db.Column(db.String(50), unique=True, nullable=False)
     color = db.Column(db.String(7), nullable=False, default='#1919FF')
     index = db.Column(db.Integer, unique=True, nullable=False)
+    order = db.Column(db.Integer, nullable=False, default=0)
     p1_x = db.Column(db.Integer, nullable=False)
     p1_y = db.Column(db.Integer, nullable=False)
     p2_x = db.Column(db.Integer, nullable=False)
@@ -15,10 +19,12 @@ class Queue(db.Model):
     p3_y = db.Column(db.Integer, nullable=False)
     p4_x = db.Column(db.Integer, nullable=False)
     p4_y = db.Column(db.Integer, nullable=False)
+    id_company = db.Column(db.Integer, db.ForeignKey('company.id_company'), nullable=False)
     status = db.Column(db.Integer, default=1)
 
     display = db.relationship('Display', backref='queue', lazy=True)
     detector = db.relationship('Detector', backref='queue', lazy=True)
+    company = db.relationship("Company", back_populates="queue")
 
     def __repr__(self):
         return f'<Queue {self.name} , N° {self.index}>'

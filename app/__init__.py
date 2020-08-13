@@ -1,20 +1,40 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_login import LoginManager
+from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
+
 
 app = Flask(__name__)
 login = LoginManager()
 db = SQLAlchemy()
+socket = SocketIO()
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return render_template('404.jinja2'), 404
 
 
 def create_app():
     app.config.from_object('config.Config')
     db.init_app(app)
     login.init_app(app)
+    login.login_view = "AuthController:index"
+    socket.init_app(app)
+    # import Auth controller
+    from app.controllers import AuthController
+    AuthController.register(app)
+
+    from app.controllers import DeviceController
+    DeviceController.register(app)
+
+    from app.controllers import MapController
+    MapController.register(app)
+
+    from app.utils.mqtt import loop, sender
+    loop.start()
+    sender.start()
     with app.app_context():
-        from app.models.company import Company
-        from app.models.display import Display
-        from app.models.detector import Detector
-        from app.models.queue import Queue
-        from app.models.map import Map
+        from app.models.user import User
         db.create_all()
