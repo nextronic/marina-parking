@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no" />
-        <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
-        <style>
+{% extends 'layout/template.jinja2' %}
+{% block header %}
+    {{ super() }}
+    <style>
             #map{
             height: 500px;
             overflow: hidden;
@@ -58,101 +55,31 @@
                 }
             }
         </style>
-        <title>Marina Central Smart</title>
-    </head>
-    <body class="app is-collapsed">
-        <div id="loader"><div class="spinner"></div></div>
-        <script>
-            window.addEventListener("load", function load() {
-                const loader = document.getElementById("loader");
-                setTimeout(function () {
-                    loader.classList.add("fadeOut");
-                }, 300);
-            });
-        </script>
-        <div>
-            <div class="sidebar">
-                <div class="sidebar-inner">
-                    <div class="sidebar-logo">
-                        <div class="peers ai-c fxw-nw">
-                            <div class="peer peer-greed">
-                                <a class="sidebar-link td-n" href="{{ url_for('DeviceController:index') }}">
-                                    <div class="peers ai-c fxw-nw">
-                                        <div class="peer">
-                                            <div class="logo"><img src="{{ url_for('static', filename='images/logo.png') }}" alt="" /></div>
-                                        </div>
-                                        <div class="peer peer-greed"><h5 class="lh-1 mB-0 logo-text">Marina-CS</h5></div>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="peer">
-                                <div class="mobile-toggle sidebar-toggle">
-                                    <a href="" class="td-n"><i class="ti-arrow-circle-left"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <ul class="sidebar-menu scrollable pos-r">
-                        <li class="nav-item mT-30 active">
-                            <a class="sidebar-link" href="{{ url_for('MapController:index') }}" default="">
-                                <span class="icon-holder">
-                                    <i class="c-blue-500 ti-home"></i>
-                                </span>
-                                <span class="title">Home</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="sidebar-link" href="{{ url_for('DeviceController:index') }}">
-                                <span class="icon-holder">
-                                    <i class="c-orange-500 ti-share"></i>
-                                </span>
-                                <span class="title">Command</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="page-container">
-                <div class="header navbar">
-                    <div class="header-container">
-                        <ul class="nav-left">
-                            <li>
-                                <a id="sidebar-toggle" class="sidebar-toggle" href="javascript:void(0);"><i class="ti-menu"></i></a>
-                            </li>
-                        </ul>
-                        <ul class="nav-right">
-                            <li>
-                                <a href="/auth/logout" class=""><i class="ti-power-off mR-10 mT-2"></i> Log Out</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <main class="main-content bgc-grey-100">
-                    <div id="mainContent">
-                        <div class="row gap-20 masonry pos-r">
-                            <div class="masonry-sizer col-md-12"></div>
-                            {% for queue in queues %}
-                                <div class="masonry-item col-lg-2 col-md-3 col-sm-6 col-xs-12">
-                                    <div class="card" id="showForm" data-queue="{{ queue.id_queue }}" data-index="{{ queue.index }}" data-company="">
-                                        <h3 class="title">Queue N° {{ queue.index }}</h3>
-                                        <div class="card-body">
-                                            <div class="text">{{ 'Boarding' if queue.status == 1 else 'Landing' }}</div>
-                                            <div class="num">{{ queue.order }}</div>
-                                        </div>
-                                        <p class="desc text-center">{{ queue.company.name }}</p>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </main>
-                <footer class="bdT ta-c p-30 lh-0 fsz-sm c-grey-600">
-                    <span>Copyright © 2020 Developed by <a href="https://nextronic.io">Nextronic</a> Designed by <a href="https://github.com/puikinsh">puikinsh</a>. All rights reserved.</span>
-                </footer>
-            </div>
-        </div>
+{% endblock %}
 
-        <div class="modal fade" id="FormTest" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+{% block main %}
+    <div id="mainContent">
+        <div class="row gap-20 masonry pos-r">
+            <div class="masonry-sizer col-md-12"></div>
+            {% for queue in queues %}
+                <div class="masonry-item col-lg-2 col-md-3 col-sm-6 col-xs-12">
+                    <div class="card" id="showForm" data-queue="{{ queue.id_queue }}" data-index="{{ queue.index }}" data-company="">
+                        <h3 class="title">Queue N° {{ queue.index }}</h3>
+                        <div class="card-body">
+                            <div class="text">{{ 'Boarding' if queue.status == 1 else 'Landing' }}</div>
+                            <div class="num">{{ queue.order }}</div>
+                        </div>
+                        <p class="desc text-center">{{ queue.company.name }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block modal %}
+    <div class="modal fade" id="FormTest" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -196,45 +123,42 @@
                 </div>
             </div>
           </div>
+{% endblock %}
 
-        <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/vendor.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/bundle.j') }}s"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
-        <script type="text/javascript">
-            showForm.addEventListener('click',function(e){
-                iid.value = $(this).data('queue');
-                queue.innerText = $(this).data('index');
+{% block scripts %}
+    {{ super() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+    <script type="text/javascript">
+        showForm.addEventListener('click',function(e){
+            iid.value = $(this).data('queue');
+            queue.innerText = $(this).data('index');
 
-                $('#FormTest').modal()
+            $('#FormTest').modal()
+        })
+
+        company.addEventListener('change', function(e){
+            console.log(this.value)
+            if(this.value == -1){
+                iname.style.display = 'block';
+                iname.required= 'true';
+            }else{
+                iname.style.display = 'none';
+                iname.removeAttribute('required');
+            }
+        });
+
+        submitFormCap.addEventListener('submit', (e)=>{
+            e.preventDefault();
+            let formData = new FormData(e.target)
+            axios.post('#', formData).then(res => {
+                console.log(res.data)
+                if(res.status === 201)
+                    // all is good bb
+                    $('#FormTest').modal('hide')
+            }).catch(err => {
+                // check each item and change it from form
+                console.log(err.response.data);
             })
-
-            company.addEventListener('change', function(e){
-                console.log(this.value)
-                if(this.value == -1){
-                    iname.style.display = 'block';
-                    iname.required= 'true';
-                }else{
-                    iname.style.display = 'none';
-                    iname.removeAttribute('required');
-                }
-            });
-
-            submitFormCap.addEventListener('submit', (e)=>{
-                e.preventDefault();
-                let formData = new FormData(e.target)
-                axios.post('#', formData).then(res => {
-                    console.log(res.data)
-                    if(res.status === 201)
-                        // all is good bb
-                        $('#FormTest').modal('hide')
-                }).catch(err => {
-                    // check each item and change it from form
-                    console.log(err.response.data);
-                })
-            });
-        </script>
-    </body>
-</html>
+        });
+    </script>
+{% endblock %}

@@ -9,7 +9,6 @@ class Queue(db.Model):
     id_queue = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     color = db.Column(db.String(7), nullable=False, default='#1919FF')
-    index = db.Column(db.Integer, unique=True, nullable=False)
     order = db.Column(db.Integer, nullable=False, default=0)
     p1_x = db.Column(db.Integer, nullable=False)
     p1_y = db.Column(db.Integer, nullable=False)
@@ -28,3 +27,19 @@ class Queue(db.Model):
 
     def __repr__(self):
         return f'<Queue {self.name} , N° {self.index}>'
+
+    @property
+    def serialize(self):
+        return {
+            "id": self.id_queue,
+            "name": self.name,
+            "p1_x": self.p1_x,
+            "p1_y": self.p1_y,
+            "p2_x": self.p2_x,
+            "p2_y": self.p2_y,
+            "p3_x": self.p3_x,
+            "p3_y": self.p3_y,
+            "p4_x": self.p4_x,
+            "p4_y": self.p4_y,
+            "company": self.company.name
+        }

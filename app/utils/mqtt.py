@@ -1,10 +1,12 @@
 from threading import Thread
 from time import sleep
-
+from PIL import Image, ImageDraw, ImageFont
+import socket
 import paho.mqtt.client as mqtt
 from .logs import Logger
 from config import Config
 import json
+import queue
 
 
 # The callback for when the client receives a connection response from the server.
@@ -38,23 +40,52 @@ def on_message(_client, user_data, msg):
             Logger.error(ex)
 
 
+def convert(r, g, b):
+    output = 0b00000000
+    if r > 100:
+        output = output or 0b00000001
+    if g > 150:
+        output |= 0b00000010
+    if b > 100:
+        output |= 0b00000100
+    return output
+
+
 def SendItem(queue):
     global actions
     for display in queue.display:
-        index = 0
-        if queue.status == 1:
-            index = display.index
-        else:
-            index = 2 if display.index == 1 else 1
-        actions[display.serial] = {"serial": display.serial, "msg": queue.company.name, "img": index, "order": queue.order}
+        actions.put({"ip": display.ip,"serial": display.serial, "status": queue.status, "index": display.index, "name": queue.company.name})
 
 
 def PubItem():
+    _in = Image.open('./in.png')
+    _out = Image.open('./out.png')
+    font = ImageFont.truetype('arial.ttf', 13)
+    opened_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     global actions
     while 1:
-        for key in actions:
-            client.publish(f'actions/{key}', json.dumps(actions[key]))
-        sleep(2.5)
+        display = actions.get()
+        if display is None:
+            sleep(0.5)
+            continue
+        img = Image.new('RGB', (64, 32))
+        txt = Image.new('RGB', (32, 32), color='black')
+        d = ImageDraw.Draw(txt)
+        d.text((0, 10), display["name"], fill=(255, 255, 255), font=font)
+
+        if display["status"] == 1:
+            img.paste(_in if display["index"] == 1 else _out, (0, 0))
+        else:
+            img.paste(_in if display["index"] == 2 else _out, (0, 0))
+        img.paste(txt, (34, 0))
+        tmp = []
+        for i in range(32):
+            tmp.append(0x23)
+            tmp.append(i)
+            for j in range(64):
+                r, g, b = img.getpixel((j, i))
+                tmp.append(convert(r, g, b))
+        client.publish(f'actions/{display["serial"]}', bytes(tmp))
 
 
 client = mqtt.Client()
@@ -63,6 +94,6 @@ client.on_message = on_message
 client.connect(Config.MQTT_BROKER_URL, int(Config.MQTT_BROKER_PORT))
 loop = Thread(target=client.loop_forever, args=())
 sender = Thread(target=PubItem, args=())
-actions = {}
+actions = queue.Queue()
 
 

@@ -1,0 +1,504 @@
+{% extends 'layout/template.jinja2' %}
+{% block header %}
+    {{ super() }}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css" />
+    <style type="text/css">
+        #map{
+            height: 72vh;
+            overflow: hidden;
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+    <div id="mainContent">
+        <div class="row gap-20 masonry pos-r">
+            <div class="masonry-sizer col-md-6"></div>
+            <div class="masonry-item col-12">
+                <div class="bd bgc-white">
+                    <div class="peers fxw-nw@lg+ ai-s">
+                        <div class="peer peer-greed w-70p@lg+ w-100@lg- p-20">
+                            <div class="layers">
+                                <div class="layer w-100 mB-10"><h6 class="lh-1">Manual Map</h6></div>
+                                <div class="layer w-100" >
+                                    <div id="map"></div>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Modal Devices-->
+      <div class="modal fade" id="device" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true"
+        data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Device Info</h5>
+              <button type="button" id="closeD" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form action="" id="submitFormDevice" enctype="multipart/form-data">
+              <div class="modal-body">
+                <div class="form-group">
+                  <input type="hidden" name="id_marker" id="id_marker" class="modal" />
+                  <label for="name">Name :</label>
+                  <input type="text" name="fname" id="fname" class="form-control" placeholder="Enter something"
+                    aria-describedby="helpId" required />
+                </div>
+                <div class="form-group">
+                  <label for="ip">IP :</label>
+                  <input type="text" name="ip" id="ip" class="form-control" placeholder="Enter something"
+                    aria-describedby="helpId" required />
+                </div>
+                <div class="form-group">
+                  <label for="serial">Serial :</label>
+                  <input type="text" name="serial" id="serial" class="form-control" placeholder="Enter something"
+                    aria-describedby="helpId" required />
+                </div>
+                <div class="form-group">
+                  <label for="port">Port :</label>
+                  <input type="text" name="port" id="port" class="form-control" placeholder="Enter something"
+                    aria-describedby="helpId" required />
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-success" id="savedevice">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!--Modal Lines-->
+      <div class="modal fade" id="lines" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true"
+        data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Lines Info</h5>
+              <button type="button" id="closeL" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form action="" id="submitFormLines">
+              <div class="modal-body">
+                <div class="form-group">
+                  <label for="name">Name :</label>
+                  <input type="text" name="nameL" id="nameL" class="form-control" placeholder="Enter something"
+                    aria-describedby="helpId" required />
+                </div>
+              </div>
+              <div class="modal-footer">
+                <div class="row">
+                  <div class="col mt-2" style="float: left;">
+                    <div id="color-palette"></div>
+                  </div>
+                  <div class="col">
+                    <button type="submit" class="btn btn-success" id="saveLine">Save</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!--Modal Detecteur-->
+      <div class="modal fade" id="capteur" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true"
+        data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">capteur Info</h5>
+              <button type="button" id="closeC" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form action="" id="submitFormCap">
+              <div class="modal-body">
+                <div class="form-group">
+                  <input type="hidden" name="id_cap" id="id_cap" class="modal" />
+                  <label for="name">Name :</label>
+                  <input type="text" name="nameC" id="nameC" class="form-control" placeholder="Enter something"
+                    aria-describedby="helpId" required />
+                </div>
+                <div class="form-group">
+                  <label for="serialC">Serial :</label>
+                  <input type="text" name="serialC" id="serialC" class="form-control" placeholder="Enter something"
+                    aria-describedby="helpId" required />
+                </div>
+              </div>
+              <div class="modal-footer">
+                <div class="row">
+                  <div class="col">
+                    <button type="submit" class="btn btn-success" id="saveCap">Save</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js" integrity="sha512-AcZyhRP/tbAEsXCCGlziPun5iFvcSUpEz2jKkx0blkYKbxU81F+iq8FURwPn1sYFeksJ+sDDrI5XujsqSobWdQ==" crossorigin="anonymous"></script>
+
+    <script>
+        let map = L.map('map',{
+            crs: L.CRS.Simple,
+            minZoom: -2,
+            maxZoom: 4
+        });
+        let bounds = [[0,0], [1050,1680]];
+        let img = L.imageOverlay('/static/images/marina.png', bounds).addTo(map);
+        map.fitBounds(bounds);
+
+        var socket = io.connect('http://localhost:5000'),
+            data = {
+                "devices": [],
+                "lines": [],
+                "capteurs": []
+            },
+            queues = {},
+            SubmitFormDev = document.querySelector('#submitFormDevice'),
+            SubmitFormLin = document.querySelector('#submitFormLines'),
+            SubmitFormCap = document.querySelector('#submitFormCap'),
+            save = document.querySelector('#savedevice'),
+            deviceModal = document.querySelector('#device'),
+            list_icones = document.querySelector('#icones'),
+            colors = ['#1E90FF', '#FF1493'],
+            selectedColor,
+            customColor,
+            colorButtons = {},
+            polyline ="",
+            x = 0,
+            y = 0,
+            coordinates,
+            modalId = 0;
+
+        //change Image Device By Socket
+        /*socket.on('data_devices', function (result) {
+            clearBtn.onclick = (e) => {
+                let res_device = result.filter(res => res.id === id_layer.value)
+                let _id = res_device[0].id
+                id_layer.value !== _id ? drawnItems._layers[id_layer.value]._icon.src : drawnItems._layers[id_layer.value]._icon.src = document.querySelector("#image_1").src
+            };
+            useBtn.onclick = (e) => {
+                let res_device = result.filter(res => res.id === id_layer.value)
+                let _id = res_device[0].id
+                id_layer.value !== _id ? drawnItems._layers[id_layer.value]._icon.src : drawnItems._layers[id_layer.value]._icon.src = document.querySelector("#image_2").src
+            };
+            warBtn.onclick = (e) => {
+                let res_device = result.filter(res => res.id === id_layer.value)
+                let _id = res_device[0].id
+                id_layer.value !== _id ? drawnItems._layers[id_layer.value]._icon.src : drawnItems._layers[id_layer.value]._icon.src = document.querySelector("#image_3").src
+            };
+        })*/
+
+        //Initial Map
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+        var drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: drawnItems
+            }
+        });//End Draw Control
+        var customMarker = L.Icon.extend({
+            options: {
+                iconSize: new L.Point(30, 30),
+                iconUrl: "https://img.icons8.com/dusk/64/000000/garage--v1.png",
+            }
+        });
+
+        L.Draw.Capteur = L.Draw.Marker.extend({
+            statics : {
+                TYPE :'capteur'
+            },
+            options: {
+                icon: new customMarker(),
+                repeatMode: false,
+                zIndexOffset: 2000 // This should be > than the highest z-index any markers
+            },
+            initialize: function (map, options) {
+                // Save the type so super can fire, need to do this as cannot do this.TYPE :(
+                this.type = L.Draw.Capteur.TYPE;
+
+                L.Draw.Feature.prototype.initialize.call(this, map, options);
+            }
+        })//End Draw Capteur
+
+        //Custom Icon Toolbar
+        L.DrawToolbar.prototype.getModeHandlers = function(map){
+            return [{
+                enabled: true,
+                handler: new L.Draw.Polygon(map, {
+                    allowIntersection: false,
+                    showArea: true,
+                    metric: true,
+                    repeatMode: false,
+                    shapeOptions: {
+                        color: "#F2F2F2",
+                        weight: 5,
+                        fillOpacity: .5
+                    }
+                }),
+                title: 'Add Line ',
+            },
+            {
+                enabled: true,
+                handler: new L.Draw.Marker(map, { icon: new L.Icon.Default() }),
+                title: 'Add Device'
+            },
+            {
+                enabled: true,
+                handler: new L.Draw.Capteur(map, this.options.capteur),
+                title: 'Add Capteur',
+            }
+            ];
+        };
+
+        map.addControl(drawControl);
+
+        axios.get("/queue").then((res)=>{
+            for (const queue of res.data["queues"]) {
+                let latlngs = [[queue.p1_x, queue.p1_y],[queue.p2_x, queue.p2_y],[queue.p3_x, queue.p3_y],[queue.p4_x, queue.p4_y]];
+                let d = L.polygon(latlngs)
+                drawnItems.addLayer(d);
+                queues[d._leaflet_id] = queue.id;
+            }
+        })
+
+        SubmitFormDev.addEventListener('submit', function (e) {
+            e.preventDefault();
+            let result = data.devices.filter(marker => marker.id === modalId);
+            if (result.length == 0) {
+                data.devices.push({
+                    id: modalId,
+                    fname: fname.value,
+                    x: x,
+              y: y,
+              ip:ip.value,
+              serial:serial.value,
+              port:port.value,
+              status:false
+                });
+                socket.emit('device', data.devices)
+                SubmitFormDev.reset();
+                $('#device').modal('toggle');
+            } else {
+                result[0].fname = fname.value;
+                SubmitFormDev.reset();
+                $('#device').modal('toggle');
+            }
+        })
+
+        SubmitFormLin.addEventListener('submit', function (e) {
+            e.preventDefault();
+            let result = data.lines.filter(lines => lines.id === modalId);
+            if (result.length == 0) {
+                console.log("send data to server ");
+                axios.post("/queue",{
+                    "name":nameL.value,
+                    "infos":coordinates
+                }).then((res)=>{
+                    console.log(res.status);
+                });
+                SubmitFormLin.reset();
+                $('#lines').modal('toggle');
+            } else {
+                result[0].nameL = nameL.value;
+                SubmitFormLin.reset();
+                $('#lines').modal('toggle');
+            }
+        })
+
+        SubmitFormCap.addEventListener('submit', function (e) {
+            e.preventDefault();
+            let result = data.capteurs.filter(capteur => capteur.id === modalId);
+            if (result.length == 0) {
+                data.capteurs.push({
+                    id: modalId,
+                    nameC: nameC.value,
+                    x: x,
+              y: y
+                });
+                socket.emit('capteur', data.capteurs)
+                SubmitFormCap.reset();
+                $('#capteur').modal('toggle');
+            } else {
+                result[0].nameC = nameC.value;
+                SubmitFormCap.reset();
+                $('#capteur').modal('toggle');
+            }
+        })
+
+        map.on(L.Draw.Event.CREATED, function (event) {
+            var thisLayer,
+                    getIdClick;
+            var type = event.layerType,
+                    layer = event.layer;
+                    drawnItems.addLayer(layer),
+                    modalId = layer._leaflet_id
+                    if (type === 'polygon') {
+                        $("#lines").modal();
+                        $('#color-palette').css('display', 'none')
+                        console.log(layer.getLatLngs())
+                            coordinates =layer.getLatLngs()
+                            socket.on('data_lines',function(resLines){
+                                layer.addEventListener('click', function (e) {
+                                    getIdClick =e.target._leaflet_id
+                                    let result = resLines.filter(resL => resL.id == getIdClick);
+                                    if (result.length != 0) {
+                                        nameL.value = result[0].nameL;
+                                    }
+                                })//End Layer Clicked
+                                $(document).on("click","path.leaflet-interactive", function(e){
+                                    thisLayer = $(this);
+                                    $('#color-palette').css('display', 'block')
+                                    $('#lines').modal('show');
+                                })
+                                $(document).on('click','#color-palette .color-button',function(){
+                                    var colorSelected = $(this).css("backgroundColor");
+                                    changeColor(thisLayer, colorSelected)
+                                })
+                            })
+                            closeL.addEventListener('click', function (e) {
+                                if (nameL.value === '') {
+                                    map.eachLayer(function (layer) {
+                                        map.removeLayer(drawnItems._layers[modalId])
+                                    })
+                                }
+                            })
+                    }
+                    if (type === 'marker') {
+                        SubmitFormDev.reset();
+                            //id_layer.value = layer._leaflet_id
+                            x = layer._latlng.lat,
+                            y = layer._latlng.lng
+                        $("#device").modal();
+                        layer.addEventListener('click', function (e) {
+                            //id_layer.value = modalId = e.target._leaflet_id
+                            $('#device').modal('show');
+                            let result = data.devices.filter(device => device.id == e.target._leaflet_id);
+                  if (result.length !== 0) {
+                                fname.value = result[0].fname;
+                                ip.value = result[0].ip;
+                                serial.value = result[0].serial;
+                                port.value = result[0].port;
+                            }
+                            $('#device').modal('toggle');
+                        })
+                        closeD.addEventListener('click', function (e) {
+                            if (fname.value === '') {
+                                map.eachLayer(function (layer) {
+                                    map.removeLayer(drawnItems._layers[modalId])
+                                })
+                            }
+                        })
+                    }
+                    if (type === 'capteur') {
+                            SubmitFormCap.reset()
+                            //id_layer.value = layer._leaflet_id
+                            x = layer._latlng.lat,
+                            y = layer._latlng.lng
+                        $("#capteur").modal();
+                        layer.addEventListener('click', function (e) {
+                            //id_layer.value = modalId = e.target._leaflet_id
+                            $('#capteur').modal('show');
+                            let result = data.capteurs.filter(capteur => capteur.id == e.target._leaflet_id);
+                            if (result.length !== 0) {
+                                nameC.value = result[0].nameC;
+                            }
+                            $('#capteur').modal('toggle');
+                        })
+                        closeC.addEventListener('click', function (e) {
+                            if (nameC.value === '') {
+                                map.eachLayer(function (layer) {
+                                    map.removeLayer(drawnItems._layers[modalId])
+                                })
+                            }
+                        })
+                    }
+        });
+
+        map.on(L.Draw.Event.EDITED, function (e) {
+            let layers = e.layers;
+            layers.eachLayer(function (layer) {
+                if (layer instanceof L.Polygon){
+                    console.log(layer._latlngs);
+                }else if (layer instanceof L.Marker){
+                    console.log(layer._latlng);
+                }
+            });
+        });
+
+        map.on(L.Draw.Event.DELETED, (e)=>{
+            layers = e.layers._layers;
+            for (const index in e.layers._layers) {
+                axios.delete(`/queue/${queues[index]}`).then((res)=>{
+                    console.log(res.status);
+                });
+            }
+        });
+
+        function ShowIcon(input, selector) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#' + selector).attr('src', e.target.result)
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function selectColor(color) {
+            selectedColor = color;
+            for (var i = 0; i < colors.length; i++) {
+                let currentColor = colors[i]
+                colorButtons[currentColor].style.border = currentColor == color ? '2px solid #333' : '2px solid #fff';
+            }
+        }
+
+        buildColorPalette();
+
+        function buildColorPalette() {
+            var colorPalette = document.getElementById('color-palette');
+            for (var i = 0; i < colors.length; ++i) {
+                var currColor = colors[i];
+                var colorButton = makeColorButton(currColor);
+                //Lines
+                colorPalette.appendChild(colorButton);
+                colorButtons[currColor] = colorButton;
+            }
+            selectColor(colors);
+        }
+
+        function makeColorButton(color) {
+            var button = document.createElement('span');
+            button.className = 'color-button';
+            button.style.backgroundColor = color;
+
+            L.DomEvent.addListener(button, 'click', function (e) {
+                selectColor(color);
+            });
+            return button;
+        }
+
+        function changeColor(element, colorSelected) {
+            element.attr({
+                fill: colorSelected,
+                stroke: colorSelected
+            })
+        }
+
+    </script>
+{% endblock %}

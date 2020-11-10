@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_login import LoginManager
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
@@ -16,6 +16,12 @@ def page_not_found(e):
     return render_template('404.jinja2'), 404
 
 
+@app.route('/events', methods=['get', 'post'])
+def events():
+    print(request.json)
+    return 'ok', 200
+
+
 def create_app():
     app.config.from_object('config.Config')
     db.init_app(app)
@@ -31,6 +37,9 @@ def create_app():
 
     from app.controllers import MapController
     MapController.register(app)
+
+    from app.controllers import QueueController
+    QueueController.register(app)
 
     from app.utils.mqtt import loop, sender
     loop.start()

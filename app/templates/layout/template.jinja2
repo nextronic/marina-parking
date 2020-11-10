@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% block header %}
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no" />
+        <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
+        <title>Marina Central Smart</title>
+        {% endblock %}
+    </head>
+    <body class="app">
+        <div id="loader"><div class="spinner"></div></div>
+        <script>
+            window.addEventListener("load", function load() {
+                const loader = document.getElementById("loader");
+                setTimeout(function () {
+                    loader.classList.add("fadeOut");
+                }, 300);
+            });
+        </script>
+        <div>
+            <div class="sidebar">
+                <div class="sidebar-inner">
+                    <div class="sidebar-logo">
+                        <div class="peers ai-c fxw-nw">
+                            <div class="peer peer-greed">
+                                <a class="sidebar-link td-n" href="{{ url_for('DeviceController:index') }}">
+                                    <div class="peers ai-c fxw-nw">
+                                        <div class="peer">
+                                            <div class="logo"><img src="{{ url_for('static', filename='images/logo.png') }}" alt="" /></div>
+                                        </div>
+                                        <div class="peer peer-greed"><h5 class="lh-1 mB-0 logo-text">Marina-CS</h5></div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="peer">
+                                <div class="mobile-toggle sidebar-toggle">
+                                    <a href="" class="td-n"><i class="ti-arrow-circle-left"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="sidebar-menu scrollable pos-r">
+                        <li class="nav-item mT-30 active">
+                            <a class="sidebar-link" href="{{ url_for('MapController:index') }}" default="">
+                                <span class="icon-holder">
+                                    <i class="c-blue-500 ti-home"></i>
+                                </span>
+                                <span class="title">Home</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="sidebar-link" href="{{ url_for('DeviceController:index') }}">
+                                <span class="icon-holder">
+                                    <i class="c-orange-500 ti-share"></i>
+                                </span>
+                                <span class="title">Command</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="sidebar-link" href="{{ url_for('DeviceController:index') }}">
+                                <span class="icon-holder">
+                                    <i class="c-green-500 ti-user"></i>
+                                </span>
+                                <span class="title">Users</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="page-container">
+                <div class="header navbar">
+                    <div class="header-container">
+                        <ul class="nav-left">
+                            <li>
+                                <a id="sidebar-toggle" class="sidebar-toggle" href="javascript:void(0);"><i class="ti-menu"></i></a>
+                            </li>
+                        </ul>
+                        <ul class="nav-right">
+                            <li>
+                                <a href="/auth/logout" class=""><i class="ti-power-off mR-10 mT-2"></i> Log Out</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <main class="main-content bgc-grey-100">
+                    {% block main %}
+                    {% endblock %}
+                </main>
+                <footer class="bdT ta-c p-30 lh-0 fsz-sm c-grey-600">
+                    <span>Copyright © 2020 Developed by <a href="https://nextronic.io">Nextronic</a> Designed by <a href="https://github.com/puikinsh">puikinsh</a>. All rights reserved.</span>
+                </footer>
+            </div>
+        </div>
+        {% block modal %}
+
+        {% endblock %}
+
+        {% block scripts %}
+            <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/vendor.js') }}"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/bundle.j') }}s"></script>
+            <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+        {% endblock %}
+    </body>
+</html>
