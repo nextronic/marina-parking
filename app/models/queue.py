@@ -26,7 +26,7 @@ class Queue(db.Model):
     company = db.relationship("Company", back_populates="queue")
 
     def __repr__(self):
-        return f'<Queue {self.name} , N° {self.index}>'
+        return f'<Queue {self.name} , N° {self.index} , Id {self.id_queue}>'
 
     @property
     def serialize(self):

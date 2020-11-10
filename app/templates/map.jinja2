@@ -80,7 +80,7 @@
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Lines Info</h5>
+              <h5 class="modal-title">Queue Info</h5>
               <button type="button" id="closeL" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -88,9 +88,16 @@
             <form action="" id="submitFormLines">
               <div class="modal-body">
                 <div class="form-group">
-                  <label for="name">Name :</label>
-                  <input type="text" name="nameL" id="nameL" class="form-control" placeholder="Enter something"
-                    aria-describedby="helpId" required />
+                  <label for="nameL">Name :</label>
+                  <input type="text" name="name" id="nameL" class="form-control" placeholder="Enter something" aria-describedby="helpId" required />
+                </div>
+                <div class="form-group">
+                  <label for="in">Display IN :</label>
+                  <input type="text" name="in" id="in_" class="form-control" placeholder="Display Token IN" aria-describedby="helpId" required />
+                </div>
+                <div class="form-group">
+                  <label for="out">Display OUT :</label>
+                  <input type="text" name="out" id="out" class="form-control" placeholder="Display Token OUT" aria-describedby="helpId" required />
                 </div>
               </div>
               <div class="modal-footer">
@@ -100,42 +107,6 @@
                   </div>
                   <div class="col">
                     <button type="submit" class="btn btn-success" id="saveLine">Save</button>
-                  </div>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      <!--Modal Detecteur-->
-      <div class="modal fade" id="capteur" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true"
-        data-backdrop="static" data-keyboard="false">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">capteur Info</h5>
-              <button type="button" id="closeC" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <form action="" id="submitFormCap">
-              <div class="modal-body">
-                <div class="form-group">
-                  <input type="hidden" name="id_cap" id="id_cap" class="modal" />
-                  <label for="name">Name :</label>
-                  <input type="text" name="nameC" id="nameC" class="form-control" placeholder="Enter something"
-                    aria-describedby="helpId" required />
-                </div>
-                <div class="form-group">
-                  <label for="serialC">Serial :</label>
-                  <input type="text" name="serialC" id="serialC" class="form-control" placeholder="Enter something"
-                    aria-describedby="helpId" required />
-                </div>
-              </div>
-              <div class="modal-footer">
-                <div class="row">
-                  <div class="col">
-                    <button type="submit" class="btn btn-success" id="saveCap">Save</button>
                   </div>
                 </div>
               </div>
@@ -158,6 +129,7 @@
             minZoom: -2,
             maxZoom: 4
         });
+
         let bounds = [[0,0], [1050,1680]];
         let img = L.imageOverlay('/static/images/marina.png', bounds).addTo(map);
         map.fitBounds(bounds);
@@ -165,13 +137,11 @@
         var socket = io.connect('http://localhost:5000'),
             data = {
                 "devices": [],
-                "lines": [],
-                "capteurs": []
+                "lines": []
             },
             queues = {},
             SubmitFormDev = document.querySelector('#submitFormDevice'),
             SubmitFormLin = document.querySelector('#submitFormLines'),
-            SubmitFormCap = document.querySelector('#submitFormCap'),
             save = document.querySelector('#savedevice'),
             deviceModal = document.querySelector('#device'),
             list_icones = document.querySelector('#icones'),
@@ -212,29 +182,6 @@
                 featureGroup: drawnItems
             }
         });//End Draw Control
-        var customMarker = L.Icon.extend({
-            options: {
-                iconSize: new L.Point(30, 30),
-                iconUrl: "https://img.icons8.com/dusk/64/000000/garage--v1.png",
-            }
-        });
-
-        L.Draw.Capteur = L.Draw.Marker.extend({
-            statics : {
-                TYPE :'capteur'
-            },
-            options: {
-                icon: new customMarker(),
-                repeatMode: false,
-                zIndexOffset: 2000 // This should be > than the highest z-index any markers
-            },
-            initialize: function (map, options) {
-                // Save the type so super can fire, need to do this as cannot do this.TYPE :(
-                this.type = L.Draw.Capteur.TYPE;
-
-                L.Draw.Feature.prototype.initialize.call(this, map, options);
-            }
-        })//End Draw Capteur
 
         //Custom Icon Toolbar
         L.DrawToolbar.prototype.getModeHandlers = function(map){
@@ -257,11 +204,6 @@
                 enabled: true,
                 handler: new L.Draw.Marker(map, { icon: new L.Icon.Default() }),
                 title: 'Add Device'
-            },
-            {
-                enabled: true,
-                handler: new L.Draw.Capteur(map, this.options.capteur),
-                title: 'Add Capteur',
             }
             ];
         };
@@ -308,6 +250,8 @@
                 console.log("send data to server ");
                 axios.post("/queue",{
                     "name":nameL.value,
+                    "in":in_.value,
+                    "out":out.value,
                     "infos":coordinates
                 }).then((res)=>{
                     console.log(res.status);
@@ -318,26 +262,6 @@
                 result[0].nameL = nameL.value;
                 SubmitFormLin.reset();
                 $('#lines').modal('toggle');
-            }
-        })
-
-        SubmitFormCap.addEventListener('submit', function (e) {
-            e.preventDefault();
-            let result = data.capteurs.filter(capteur => capteur.id === modalId);
-            if (result.length == 0) {
-                data.capteurs.push({
-                    id: modalId,
-                    nameC: nameC.value,
-                    x: x,
-              y: y
-                });
-                socket.emit('capteur', data.capteurs)
-                SubmitFormCap.reset();
-                $('#capteur').modal('toggle');
-            } else {
-                result[0].nameC = nameC.value;
-                SubmitFormCap.reset();
-                $('#capteur').modal('toggle');
             }
         })
 
@@ -399,29 +323,6 @@
                         })
                         closeD.addEventListener('click', function (e) {
                             if (fname.value === '') {
-                                map.eachLayer(function (layer) {
-                                    map.removeLayer(drawnItems._layers[modalId])
-                                })
-                            }
-                        })
-                    }
-                    if (type === 'capteur') {
-                            SubmitFormCap.reset()
-                            //id_layer.value = layer._leaflet_id
-                            x = layer._latlng.lat,
-                            y = layer._latlng.lng
-                        $("#capteur").modal();
-                        layer.addEventListener('click', function (e) {
-                            //id_layer.value = modalId = e.target._leaflet_id
-                            $('#capteur').modal('show');
-                            let result = data.capteurs.filter(capteur => capteur.id == e.target._leaflet_id);
-                            if (result.length !== 0) {
-                                nameC.value = result[0].nameC;
-                            }
-                            $('#capteur').modal('toggle');
-                        })
-                        closeC.addEventListener('click', function (e) {
-                            if (nameC.value === '') {
                                 map.eachLayer(function (layer) {
                                     map.removeLayer(drawnItems._layers[modalId])
                                 })

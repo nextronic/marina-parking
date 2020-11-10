@@ -16,14 +16,14 @@ class AuthController(AuthMiddleware):
 
     def post(self):
         if current_user.is_authenticated:
-            return redirect(url_for('index'))
+            return redirect(url_for('MapController:index'))
 
         user = User.query.filter_by(username=self.form.username.data).first()
         if user is None or not user.checkPasswd(self.form.passwd.data):
             return redirect(url_for('login'))
         login_user(user, remember=self.form.remember.data)
         next_page = request.args.get('next')
-        return redirect(next_page or url_for('index'))
+        return redirect(next_page or url_for('MapController:index'))
 
     @login_required
     def logout(self):
