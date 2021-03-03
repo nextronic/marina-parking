@@ -19,9 +19,6 @@ class QueueController(QueueMiddleware):
         name = request.json.get("name", "")
         in_token = request.json.get("in", "")
         out_token = request.json.get("out", "")
-        print(name)
-        print(out_token)
-        print(in_token)
         if len(positions) == 0 or name == "" or in_token == "" or out_token == "":
             return "", 401
         tmp = Queue()

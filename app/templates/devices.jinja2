@@ -59,17 +59,16 @@
 
 {% block main %}
     <div id="mainContent">
-        <div class="row gap-20 masonry pos-r">
-            <div class="masonry-sizer col-md-12"></div>
+        <div class="row">
             {% for queue in queues %}
                 <div class="masonry-item col-lg-2 col-md-3 col-sm-6 col-xs-12">
-                    <div class="card" id="showForm" data-queue="{{ queue.id_queue }}" data-index="{{ queue.index }}" data-company="">
-                        <h3 class="title">Queue N° {{ queue.index }}</h3>
+                    <div class="card" onclick="clickForm({{ queue.id_queue }})" id="showForm{{ queue.id_queue }}" data-queue="{{ queue.id_queue }}" data-index="{{ queue.index }}" data-company="">
+                        <h3 class="title">Queue N° {{ queue.id_queue }}</h3>
                         <div class="card-body">
-                            <div class="text">{{ 'Boarding' if queue.status == 1 else 'Landing' }}</div>
-                            <div class="num">{{ queue.order }}</div>
+                            <div class="text" id="status{{ queue.id_queue }}">{{ 'Landing' if queue.status == 1 else 'Boarding' }}</div>
+                            <div class="num" id="order{{ queue.id_queue }}">{{ queue.order }}</div>
                         </div>
-                        <p class="desc text-center">{{ queue.company.name }}</p>
+                        <p class="desc text-center" id="name{{ queue.id_queue }}">{{ queue.company.name }}</p>
                     </div>
                 </div>
             {% endfor %}
@@ -129,12 +128,12 @@
     {{ super() }}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
     <script type="text/javascript">
-        showForm.addEventListener('click',function(e){
-            iid.value = $(this).data('queue');
-            queue.innerText = $(this).data('index');
-
-            $('#FormTest').modal()
-        })
+        function clickForm(index){
+            console.log()
+            iid.value = $(`#showForm${index}`).data('queue');
+            queue.innerText = $(`#showForm${index}`).data('index');
+            $(`#FormTest`).modal()
+        };
 
         company.addEventListener('change', function(e){
             console.log(this.value)
@@ -151,13 +150,22 @@
             e.preventDefault();
             let formData = new FormData(e.target)
             axios.post('#', formData).then(res => {
-                console.log(res.data)
-                if(res.status === 201)
+
+                if(res.status === 201){
+                    let id = res.data.queue.id
+                    console.log(res.data.queue)
+                    console.log($(`#name${id}`)[0].innerText);
+                    $(`#name${id}`)[0].innerText = res.data.queue.company;
+                     $(`#order${id}`)[0].innerText= res.data.queue.order;
+                     $(`#status${id}`)[0].innerText= res.data.queue.direction == 1 ? 'Landing' : 'Boarding' ;
+
                     // all is good bb
                     $('#FormTest').modal('hide')
+                }
+
             }).catch(err => {
                 // check each item and change it from form
-                console.log(err.response.data);
+                // err.response.data.queue);
             })
         });
     </script>

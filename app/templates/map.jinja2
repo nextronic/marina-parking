@@ -33,49 +33,39 @@
         </div>
     </div>
     <!--Modal Devices-->
-      <div class="modal fade" id="device" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true"
-        data-backdrop="static" data-keyboard="false">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Device Info</h5>
-              <button type="button" id="closeD" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <form action="" id="submitFormDevice" enctype="multipart/form-data">
-              <div class="modal-body">
-                <div class="form-group">
-                  <input type="hidden" name="id_marker" id="id_marker" class="modal" />
-                  <label for="name">Name :</label>
-                  <input type="text" name="fname" id="fname" class="form-control" placeholder="Enter something"
-                    aria-describedby="helpId" required />
-                </div>
-                <div class="form-group">
-                  <label for="ip">IP :</label>
-                  <input type="text" name="ip" id="ip" class="form-control" placeholder="Enter something"
-                    aria-describedby="helpId" required />
-                </div>
-                <div class="form-group">
-                  <label for="serial">Serial :</label>
-                  <input type="text" name="serial" id="serial" class="form-control" placeholder="Enter something"
-                    aria-describedby="helpId" required />
-                </div>
-                <div class="form-group">
-                  <label for="port">Port :</label>
-                  <input type="text" name="port" id="port" class="form-control" placeholder="Enter something"
-                    aria-describedby="helpId" required />
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="submit" class="btn btn-success" id="savedevice">Save</button>
-              </div>
-            </form>
-          </div>
+  <div class="modal fade" id="device" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true"
+    data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Device Info</h5>
+          <button type="button" id="closeD" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
+        <form action="" id="submitFormDevice" enctype="multipart/form-data">
+          <div class="modal-body">
+            <div class="form-group">
+              <input type="hidden" name="id_marker" id="id_marker" class="modal" />
+              <label for="name">Name :</label>
+              <input type="text" name="fname" id="fname" class="form-control" placeholder="Detector Name"
+                aria-describedby="helpId" required />
+            </div>
+            <div class="form-group">
+              <label for="serial">Serial :</label>
+              <input type="text" name="serial" id="serial" class="form-control" placeholder="Serial Number "
+                aria-describedby="helpId" required />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success" id="savedevice">Save</button>
+          </div>
+        </form>
       </div>
-      <!--Modal Lines-->
-      <div class="modal fade" id="lines" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true"
+    </div>
+  </div>
+  <!--Modal Lines-->
+  <div class="modal fade" id="lines" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true"
         data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
@@ -139,6 +129,7 @@
                 "devices": [],
                 "lines": []
             },
+            detectors = {},
             queues = {},
             SubmitFormDev = document.querySelector('#submitFormDevice'),
             SubmitFormLin = document.querySelector('#submitFormLines'),
@@ -156,23 +147,10 @@
             modalId = 0;
 
         //change Image Device By Socket
-        /*socket.on('data_devices', function (result) {
-            clearBtn.onclick = (e) => {
-                let res_device = result.filter(res => res.id === id_layer.value)
-                let _id = res_device[0].id
-                id_layer.value !== _id ? drawnItems._layers[id_layer.value]._icon.src : drawnItems._layers[id_layer.value]._icon.src = document.querySelector("#image_1").src
-            };
-            useBtn.onclick = (e) => {
-                let res_device = result.filter(res => res.id === id_layer.value)
-                let _id = res_device[0].id
-                id_layer.value !== _id ? drawnItems._layers[id_layer.value]._icon.src : drawnItems._layers[id_layer.value]._icon.src = document.querySelector("#image_2").src
-            };
-            warBtn.onclick = (e) => {
-                let res_device = result.filter(res => res.id === id_layer.value)
-                let _id = res_device[0].id
-                id_layer.value !== _id ? drawnItems._layers[id_layer.value]._icon.src : drawnItems._layers[id_layer.value]._icon.src = document.querySelector("#image_3").src
-            };
-        })*/
+        socket.on('detector', function (req) {
+            drawnItems._layers[detectors[req.detector]]._icon.src = req.status == 1 ?'/static/images/free.png':'/static/images/logo.png';
+            console.log(req);
+        })
 
         //Initial Map
         var drawnItems = new L.FeatureGroup();
@@ -215,7 +193,17 @@
                 let latlngs = [[queue.p1_x, queue.p1_y],[queue.p2_x, queue.p2_y],[queue.p3_x, queue.p3_y],[queue.p4_x, queue.p4_y]];
                 let d = L.polygon(latlngs)
                 drawnItems.addLayer(d);
-                queues[d._leaflet_id] = queue.id;
+                console.log(queue);
+                queues[queue.id] = d._leaflet_id ;
+            }
+        })
+
+        axios.get("/detector/list").then((res)=>{
+            for (const detector of res.data["detectors"]) {
+                let latlngs = [detector.x, detector.y];
+                let d = L.marker(latlngs).bindPopup(`${detector.name}`);
+                drawnItems.addLayer(d);
+                detectors[detector.serial] = d._leaflet_id;
             }
         })
 
@@ -223,19 +211,19 @@
             e.preventDefault();
             let result = data.devices.filter(marker => marker.id === modalId);
             if (result.length == 0) {
-                data.devices.push({
-                    id: modalId,
-                    fname: fname.value,
-                    x: x,
-              y: y,
-              ip:ip.value,
-              serial:serial.value,
-              port:port.value,
-              status:false
+                axios.post("/detector/",{
+                    "name":fname.value,
+                    "serial":serial.value,
+                    "x":x,
+                    "y":y
+                }).then((res)=>{
+                    if(res.status == 201){
+                        SubmitFormDev.reset();
+                        $('#device').modal('toggle');
+                    }
                 });
-                socket.emit('device', data.devices)
-                SubmitFormDev.reset();
-                $('#device').modal('toggle');
+
+
             } else {
                 result[0].fname = fname.value;
                 SubmitFormDev.reset();
@@ -247,7 +235,6 @@
             e.preventDefault();
             let result = data.lines.filter(lines => lines.id === modalId);
             if (result.length == 0) {
-                console.log("send data to server ");
                 axios.post("/queue",{
                     "name":nameL.value,
                     "in":in_.value,
@@ -336,18 +323,28 @@
             layers.eachLayer(function (layer) {
                 if (layer instanceof L.Polygon){
                     console.log(layer._latlngs);
+                    console.log(layer._leaflet_id);
+                    console.log(queues);
                 }else if (layer instanceof L.Marker){
                     console.log(layer._latlng);
+                    console.log(layer);
                 }
             });
         });
 
         map.on(L.Draw.Event.DELETED, (e)=>{
             layers = e.layers._layers;
+            const getKey = (obj,val) => Object.keys(obj).find(key => obj[key] == val);
             for (const index in e.layers._layers) {
-                axios.delete(`/queue/${queues[index]}`).then((res)=>{
-                    console.log(res.status);
-                });
+                if(getKey(queues,index)){
+                    axios.delete(`/queue/${getKey(queues, index)}`).then((res)=>{
+                        console.log(res.status);
+                    });
+                }else {
+                    axios.delete(`/detector/${getKey(detectors, index)}/`).then((res) => {
+                        console.log(res.status);
+                    });
+                }
             }
         });
 

@@ -1,0 +1,118 @@
+{% extends 'layout/template.jinja2' %}
+{% block header %}
+    {{ super() }}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css" />
+    <style type="text/css">
+        #map{
+            height: 72vh;
+            overflow: hidden;
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+
+    <div id="mainContent">
+        <div class="row gap-20 masonry pos-r">
+            <div class="masonry-sizer col-md-6"></div>
+            <div class="masonry-item col-12">
+                <div class="bd bgc-white">
+                    <div class="peers fxw-nw@lg+ ai-s">
+                        <div class="peer peer-greed w-70p@lg+ w-100@lg- p-20">
+                            <div class="layers">
+                                <div class="layer w-100 mB-10"><h6 class="lh-1">Users List</h6></div>
+                                <div class="layer w-100" >
+                                    <table class="table table-hover table-bordered mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Username</th>
+                                                <th scope="col">Level</th>
+                                                <th scope="col">Tools</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbody">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Modal Devices-->
+      <div class="modal fade" id="device" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true"
+        data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Device Info</h5>
+              <button type="button" id="closeD" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form action="" id="submitFormDevice" enctype="multipart/form-data">
+              <div class="modal-body">
+                <div class="form-group">
+                  <input type="hidden" name="id_marker" id="id_marker" class="modal" />
+                  <label for="name">Name :</label>
+                  <input type="text" name="fname" id="fname" class="form-control" placeholder="Detector Name"
+                    aria-describedby="helpId" required />
+                </div>
+                <div class="form-group">
+                  <label for="serial">Serial :</label>
+                  <input type="text" name="serial" id="serial" class="form-control" placeholder="Serial Number "
+                    aria-describedby="helpId" required />
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-success" id="savedevice">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <!--Modal Lines-->
+      <div class="modal fade" id="lines" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true"
+        data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Queue Info</h5>
+              <button type="button" id="closeL" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form action="" id="submitFormLines">
+              <div class="modal-body">
+                <div class="form-group">
+                  <label for="nameL">Name :</label>
+                  <input type="text" name="name" id="nameL" class="form-control" placeholder="Enter something" aria-describedby="helpId" required />
+                </div>
+                <div class="form-group">
+                  <label for="in">Display IN :</label>
+                  <input type="text" name="in" id="in_" class="form-control" placeholder="Display Token IN" aria-describedby="helpId" required />
+                </div>
+                <div class="form-group">
+                  <label for="out">Display OUT :</label>
+                  <input type="text" name="out" id="out" class="form-control" placeholder="Display Token OUT" aria-describedby="helpId" required />
+                </div>
+              </div>
+              <div class="modal-footer">
+                <div class="row">
+                  <div class="col mt-2" style="float: left;">
+                    <div id="color-palette"></div>
+                  </div>
+                  <div class="col">
+                    <button type="submit" class="btn btn-success" id="saveLine">Save</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+{% endblock %}

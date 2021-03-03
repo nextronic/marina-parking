@@ -22,7 +22,7 @@ class Queue(db.Model):
     status = db.Column(db.Integer, default=1)
 
     display = db.relationship('Display', backref='queue', lazy=True)
-    detector = db.relationship('Detector', backref='queue', lazy=True)
+    #detector = db.relationship('Detector', backref='queue', lazy=True)
     company = db.relationship("Company", back_populates="queue")
 
     def __repr__(self):

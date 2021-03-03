@@ -19,6 +19,7 @@ class AuthController(AuthMiddleware):
             return redirect(url_for('MapController:index'))
 
         user = User.query.filter_by(username=self.form.username.data).first()
+
         if user is None or not user.checkPasswd(self.form.passwd.data):
             return redirect(url_for('login'))
         login_user(user, remember=self.form.remember.data)

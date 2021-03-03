@@ -1,8 +1,7 @@
 from flask_login import login_required
 from app import db
 from ..middleware.device import DeviceMiddleware
-from ..models.company import Company
-from ..models.queue import Queue
+from ..models import Company, Queue
 from ..utils.mqtt import SendItem
 from ..forms.device import DeviceForm
 from flask import render_template, jsonify
@@ -19,6 +18,7 @@ class DeviceController(DeviceMiddleware):
     def post(self):
         self.queue.order = self.form.order.data
         self.queue.status = self.form.direction.data
+        print(self.queue.status)
         if self.form.company.data == -1:
             tmp = Company()
             tmp.name = self.form.name.data
@@ -29,7 +29,7 @@ class DeviceController(DeviceMiddleware):
             self.queue.id_company = self.form.company.data
         db.session.commit()
         SendItem(self.queue)
-        return jsonify(queue={"company": self.queue.company.name, "direction": self.queue.status, "order": self.queue.order}), 201
+        return jsonify(queue={"id": self.queue.id_queue, "company": self.queue.company.name, "direction": self.queue.status, "order": self.queue.order}), 201
 
     def list(self):
         queues = Queue.query.all()

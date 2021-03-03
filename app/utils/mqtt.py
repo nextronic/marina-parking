@@ -54,7 +54,7 @@ def convert(r, g, b):
 def SendItem(queue):
     global actions
     for display in queue.display:
-        actions.put({"ip": display.ip,"serial": display.serial, "status": queue.status, "index": display.index, "name": queue.company.name})
+        actions.put({"serial": display.serial, "status": queue.status,"order":queue.order , "index": display.index, "name": queue.company.name})
 
 
 def PubItem():
@@ -71,7 +71,8 @@ def PubItem():
         img = Image.new('RGB', (64, 32))
         txt = Image.new('RGB', (32, 32), color='black')
         d = ImageDraw.Draw(txt)
-        d.text((0, 10), display["name"], fill=(255, 255, 255), font=font)
+        d.text((0, 16), display["name"], fill=(255, 255, 255), font=font)
+        d.text((0, 0), "N "+str(display['order']), fill=(255, 255, 255), font=font)
 
         if display["status"] == 1:
             img.paste(_in if display["index"] == 1 else _out, (0, 0))

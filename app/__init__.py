@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 from flask_login import LoginManager
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
+from json import loads
 
 
 app = Flask(__name__)
@@ -22,6 +23,18 @@ def events():
     return 'ok', 200
 
 
+
+@app.route('/test', methods=['GET', 'POST'])
+def test():
+    data = request.json.get('objectJSON', None)
+    if data is not None:
+        print(data[''])
+        data = loads(data) if type(data) == str else data
+        socket.emit('detector', {"detector": data['id'], "status": ("1" if data['magnetic'] > 200 else "0")})
+
+    return 'ok'
+
+
 def create_app():
     app.config.from_object('config.Config')
     db.init_app(app)
@@ -40,6 +53,12 @@ def create_app():
 
     from app.controllers import QueueController
     QueueController.register(app)
+
+    from app.controllers import UsersController
+    UsersController.register(app)
+
+    from app.controllers import DetectorController
+    DetectorController.register(app)
 
     from app.utils.mqtt import loop, sender
     loop.start()
