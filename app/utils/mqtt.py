@@ -60,7 +60,7 @@ def SendItem(queue):
 def PubItem():
     _in = Image.open('./in.png')
     _out = Image.open('./out.png')
-    font = ImageFont.truetype('arial.ttf', 13)
+    # font = ImageFont.truetype('fnt/arial.ttf', 13)
     opened_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     global actions
     while 1:
@@ -71,8 +71,8 @@ def PubItem():
         img = Image.new('RGB', (64, 32))
         txt = Image.new('RGB', (32, 32), color='black')
         d = ImageDraw.Draw(txt)
-        d.text((0, 16), display["name"], fill=(255, 255, 255), font=font)
-        d.text((0, 0), "N "+str(display['order']), fill=(255, 255, 255), font=font)
+        d.text((0, 16), display["name"], fill=(255, 255, 255))
+        d.text((0, 0), "N "+str(display['order']), fill=(255, 255, 255))
 
         if display["status"] == 1:
             img.paste(_in if display["index"] == 1 else _out, (0, 0))

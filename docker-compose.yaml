@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  mqtt:
+    image: eclipse-mosquitto
+    ports:
+      - "1884:1883"
+  web:
+    build: .
+    environment:
+      - MQTT_HOST=mqtt
+      - MQTT_PORT=1883
+      - MQTT_USER=""
+      - MQTT_PASSWD=""
+      - DB_URI="sqlite:///./../app/db/config.db"
+    ports:
+      - "5000:5000"
